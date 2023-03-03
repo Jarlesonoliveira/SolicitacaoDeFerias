@@ -28,14 +28,8 @@ namespace SolicitacaoDeFerias
 
         public static void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<IValidacaoDeRegra, ValidacaoDeRegra>();
+            services.AddScoped<AbstractValidacaoDeRegra, ValidacaoDeRegra>();
             services.AddScoped<IRegraDeNegocio, RegraDeNegocio>();
-            services.AddScoped<IRegra1, Regra1>();
-            services.AddScoped<IRegra2, Regra2>();
-            services.AddScoped<IRegra3, Regra3>();
-            services.AddScoped<IRegra4, Regra4>();
-            services.AddScoped<IRegra5, Regra5>();
-            services.AddScoped<IRegra6, Regra6>();
         }
         public static void CheckDate()
         {
@@ -44,13 +38,7 @@ namespace SolicitacaoDeFerias
             var serviceCollection = new ServiceCollection();
             ConfigureServices(serviceCollection);
             var service = serviceCollection.BuildServiceProvider();
-            var enventService = service.GetService<IValidacaoDeRegra>();
-            var enventService1 = service.GetService<IRegra1>();
-            var enventService2 = service.GetService<IRegra2>();
-            var enventService3 = service.GetService<IRegra3>();
-            var enventService4 = service.GetService<IRegra4>();
-            var enventService5 = service.GetService<IRegra5>();
-            var enventService6 = service.GetService<IRegra6>();
+            var enventService = service.GetService<AbstractValidacaoDeRegra>();
 
             do
             {

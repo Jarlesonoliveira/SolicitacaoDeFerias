@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace SolicitacaoDeFerias.Services
 {
-    internal class RegraDeNegocio : IRegraDeNegocio
+    public class RegraDeNegocio : IRegraDeNegocio
     {
         /// <summary>
         /// Verifica se as ferias está dentro do limite de 30 dias

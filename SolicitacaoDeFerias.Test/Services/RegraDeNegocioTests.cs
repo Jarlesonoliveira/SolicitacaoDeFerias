@@ -15,9 +15,9 @@ namespace SolicitacaoDeFerias.Test.Services
             bool valid = true;
 
             //Arrange
-            Moq.Mock<IRegra1> mock = new Mock<IRegra1>();
+            Moq.Mock<IRegraDeNegocio> mock = new Mock<IRegraDeNegocio>();
             mock.Setup(x => x.DataFinalMaiorQueDataInicio(It.IsAny<DateTime>(), It.IsAny<DateTime>(), true)).Returns(true);
-            Regra1 DFMQI = new Regra1();
+            RegraDeNegocio DFMQI = new RegraDeNegocio();
 
             //Act
             var op = DFMQI.DataFinalMaiorQueDataInicio(new DateTime(20 / 02 / 2023), new DateTime(19 / 02 / 2023), valid);
@@ -32,9 +32,9 @@ namespace SolicitacaoDeFerias.Test.Services
             bool valid = true;
 
             //Arrange
-            Moq.Mock<IRegra2> mock = new Mock<IRegra2>();
+            Moq.Mock<IRegraDeNegocio> mock = new Mock<IRegraDeNegocio>();
             mock.Setup(x => x.DiaDaSemanaLiberado(It.IsAny<DateTime>(), It.IsAny<List<DayOfWeek>>(), true)).Returns(true);
-            Regra2 DDSL = new Regra2();
+            RegraDeNegocio DDSL = new RegraDeNegocio();
 
             //Act
             var op = DDSL.DiaDaSemanaLiberado(new DateTime(20 / 02 / 2023), new List<DayOfWeek>((int) DayOfWeek.Monday), valid);
@@ -49,9 +49,9 @@ namespace SolicitacaoDeFerias.Test.Services
             bool valid = true;
 
             //Arrange
-            Moq.Mock<IRegra3> mock = new Mock<IRegra3>();
+            Moq.Mock<IRegraDeNegocio> mock = new Mock<IRegraDeNegocio>();
             mock.Setup(x => x.DataDeInicioAntecedeFeriado(It.IsAny<DateTime>(), true)).Returns(true);
-            Regra3 DDIAF = new Regra3();
+            RegraDeNegocio DDIAF = new RegraDeNegocio();
 
             //Act
             var op = DDIAF.DataDeInicioAntecedeFeriado(new DateTime(25 / 02 / 2023), valid);
@@ -65,9 +65,9 @@ namespace SolicitacaoDeFerias.Test.Services
             bool valid = true;
 
             //Arrange
-            Moq.Mock<IRegra4> mock = new Mock<IRegra4>();
+            Moq.Mock<IRegraDeNegocio> mock = new Mock<IRegraDeNegocio>();
             mock.Setup(x => x.QuarentaDiasDeAntecedencia(It.IsAny<DateTime>(), It.IsAny<DateTime>(), true));
-            Regra4 QDA = new Regra4();
+            RegraDeNegocio QDA = new RegraDeNegocio();
 
             //Act
             var op = QDA.QuarentaDiasDeAntecedencia(new DateTime(01 / 02 / 2023), new DateTime(25 / 02 / 2023), valid);
@@ -82,9 +82,9 @@ namespace SolicitacaoDeFerias.Test.Services
 
 
             //Arrange            
-            Moq.Mock<IRegra5> mock = new Mock<IRegra5>();
+            Moq.Mock<IRegraDeNegocio> mock = new Mock<IRegraDeNegocio>();
             mock.Setup(x => x.FeriasDentroDoLimiteDeDias(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), true)).Returns(true);
-            Regra5 FDLD = new Regra5();
+            RegraDeNegocio FDLD = new RegraDeNegocio();
 
             //Act
             int limite = 30;
@@ -99,9 +99,9 @@ namespace SolicitacaoDeFerias.Test.Services
             bool valid = true;
 
             //Arrange
-            Moq.Mock<IRegra6> mock = new Mock<IRegra6>();
+            Moq.Mock<IRegraDeNegocio> mock = new Mock<IRegraDeNegocio>();
             mock.Setup(x => x.FeriasDentroDoLimiteMinimoDeDias(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), true)).Returns(true);
-            Regra6 FDLDD = new Regra6();
+            RegraDeNegocio FDLDD = new RegraDeNegocio();
 
             //Act
             int limite = 10;
