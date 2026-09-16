@@ -1,23 +1,22 @@
-﻿using System;
+using System;
 
 namespace SolicitacaoDeFerias.Model
 {
-    public class Feriado
+    public sealed class Feriado
     {
-    public Feriado(DateTime data, string descricao)
+        public Feriado(DateTime data, string descricao)
         {
-            Data = data;
-            Descricao = descricao;
+            Data = data.Date;
+            Descricao = descricao ?? string.Empty;
         }
 
         public Feriado(string data, string descricao)
+            : this(DateTime.Parse(data), descricao)
         {
-            Data = DateTime.Parse(data);
-            Descricao = descricao;
         }
 
-        public DateTime Data { get; set; }
-        public string Descricao { get; set; }
+        public DateTime Data { get; }
+        public string Descricao { get; }
         public string DataFormatada => Data.ToString("dd/MM/yyyy");
     }
 }

@@ -1,72 +1,67 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
+using SolicitacaoDeFerias.Infrastructure;
+using SolicitacaoDeFerias.Model;
 using SolicitacaoDeFerias.Services;
 using System;
+using System.Globalization;
+using System.IO;
 
 namespace SolicitacaoDeFerias
 {
-    /// <summary>
-    /// Desafio RH - Calculo de Férias
-    /// </summary>    
     public class Program
     {
-        /// <summary>
-        /// Regras:
-        ///     - Capturar a Data de Inicio e Fim das férias
-        ///     - Validar se as datas são validas seguindo as regras: 
-        ///         - Regra 01 :: A data final deve ser maior que a Data Inicial; 
-        ///         - Regra 02 :: As férias deverão ter inicio de Segunda a Quarta;
-        ///         - Regra 03 :: O Periodo de Férias não deve ter inicio aos dias que antecede um feriado;
-        ///         - Regra 04 :: As férias deverão ser solicitadas com 40 dias de antecedência da data de inicio;
-        ///         - Regra 05 :: As férias devem ter no máximo 30 dias;
-        ///         - Regra 06 :: As férias tem que ter o minimo de 10 dias;
-        ///     - Caso exista algum erro, exibir o erro relacionado;
-        /// </summary>        
-        static void Main(string[] args)
-        {         
-            CheckDate();
-        }
-
-        public static void ConfigureServices(IServiceCollection services)
+        public static void Main(string[] args)
         {
-            services.AddScoped<AbstractValidacaoDeRegra, ValidacaoDeRegra>();
-            services.AddScoped<IRegraDeNegocio, RegraDeNegocio>();
-        }
-        public static void CheckDate()
-        {
-            DateTime dataInicial, dataFinal;
-            bool rotinaSemErro = false;
-            var serviceCollection = new ServiceCollection();
-            ConfigureServices(serviceCollection);
-            var service = serviceCollection.BuildServiceProvider();
-            var enventService = service.GetService<AbstractValidacaoDeRegra>();
-
-            do
+            using (var serviceProvider = ConfigureServices())
             {
-                try
-                {
-                    #region Capturar dados de entrada
-                    Console.Write("Digite a data de inicio das férias dd/mm/yyyy: ");
-                    dataInicial = DateTime.Parse(Console.ReadLine());
+                Executar(serviceProvider);
+            }
+        }
 
-                    Console.Write("Digite a data de final das férias dd/mm/yyyy: ");
-                    dataFinal = DateTime.Parse(Console.ReadLine());
-                    #endregion
+        public static ServiceProvider ConfigureServices()
+        {
+            var services = new ServiceCollection();
+            services.AddSingleton<IRelogio, RelogioDoSistema>();
+            services.AddSingleton<IFeriadoRepository>(_ => new FeriadoCsvRepository(
+                Path.Combine(AppContext.BaseDirectory, "Files", "Feriados_Nacionais.csv")));
+            services.AddTransient<IRegraDeFerias, RegraDataFinalMaiorQueInicial>();
+            services.AddTransient<IRegraDeFerias, RegraDiaInicialPermitido>();
+            services.AddTransient<IRegraDeFerias, RegraNaoAntecedeFeriado>();
+            services.AddTransient<IRegraDeFerias, RegraAntecedenciaMinima>();
+            services.AddTransient<IRegraDeFerias, RegraDuracaoMaxima>();
+            services.AddTransient<IRegraDeFerias, RegraDuracaoMinima>();
+            services.AddTransient<IValidadorDeFerias, ValidacaoDeRegra>();
+            return services.BuildServiceProvider();
+        }
 
-                    #region Realizar as validações
-                    enventService.ValidaFerias(dataInicial, dataFinal);
-                    #endregion
-                                      
+        public static void Executar(IServiceProvider services)
+        {
+            var validador = services.GetRequiredService<IValidadorDeFerias>();
+            Console.Write("Digite a data de início das férias (dd/MM/yyyy): ");
+            if (!DateTime.TryParseExact(Console.ReadLine(), "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dataInicial))
+            {
+                Console.WriteLine("Data inicial inválida.");
+                return;
+            }
 
-                } catch (Exception)
-                {
-                    Console.WriteLine("\r\nErro na leitura dos parâmetros, por favor tente novamente.\r\n");
-                } finally
-                {
-                    Console.ReadKey();
-                }
+            Console.Write("Digite a data final das férias (dd/MM/yyyy): ");
+            if (!DateTime.TryParseExact(Console.ReadLine(), "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dataFinal))
+            {
+                Console.WriteLine("Data final inválida.");
+                return;
+            }
 
-            } while (!rotinaSemErro);
+            var resultado = validador.Validar(new SolicitacaoFerias(dataInicial, dataFinal));
+            if (resultado.Valido)
+            {
+                Console.WriteLine("Férias registradas com sucesso!");
+                return;
+            }
+
+            foreach (var erro in resultado.Erros)
+            {
+                Console.WriteLine(erro);
+            }
         }
     }
 }
-public partial class Program { }

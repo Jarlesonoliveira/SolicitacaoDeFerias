@@ -1,4 +1,4 @@
-using Moq;
+using SolicitacaoDeFerias.Model;
 using SolicitacaoDeFerias.Services;
 using System;
 using System.Collections.Generic;
@@ -8,107 +8,75 @@ namespace SolicitacaoDeFerias.Test.Services
 {
     public class RegraDeNegocioTests
     {
-
         [Fact]
-        public void DataFinalMaiorQueDataInicio()
+        public void DeveAceitarTerçaFeiraComoDataInicial()
         {
-            bool valid = true;
+            var contexto = CriarContexto(new DateTime(2026, 2, 17), new DateTime(2026, 2, 26));
 
-            //Arrange
-            Moq.Mock<IRegraDeNegocio> mock = new Mock<IRegraDeNegocio>();
-            mock.Setup(x => x.DataFinalMaiorQueDataInicio(It.IsAny<DateTime>(), It.IsAny<DateTime>(), true)).Returns(true);
-            RegraDeNegocio DFMQI = new RegraDeNegocio();
-
-            //Act
-            var op = DFMQI.DataFinalMaiorQueDataInicio(new DateTime(20 / 02 / 2023), new DateTime(19 / 02 / 2023), valid);
-
-            //Assert
-            Assert.True(op);
-
+            Assert.True(new RegraDiaInicialPermitido().Validar(contexto));
         }
+
         [Fact]
-        public void DiaDaSemanaLiberado()
+        public void DeveRejeitarInicioNoDiaAnteriorAoFeriado()
         {
-            bool valid = true;
+            var contexto = CriarContexto(
+                new DateTime(2026, 2, 16),
+                new DateTime(2026, 2, 25),
+                new Feriado(new DateTime(2026, 2, 17), "Feriado"));
 
-            //Arrange
-            Moq.Mock<IRegraDeNegocio> mock = new Mock<IRegraDeNegocio>();
-            mock.Setup(x => x.DiaDaSemanaLiberado(It.IsAny<DateTime>(), It.IsAny<List<DayOfWeek>>(), true)).Returns(true);
-            RegraDeNegocio DDSL = new RegraDeNegocio();
-
-            //Act
-            var op = DDSL.DiaDaSemanaLiberado(new DateTime(20 / 02 / 2023), new List<DayOfWeek>((int) DayOfWeek.Monday), valid);
-
-            //Assert
-            Assert.False(op);
-
+            Assert.False(new RegraNaoAntecedeFeriado().Validar(contexto));
         }
+
         [Fact]
-        public void DataDeInicioAntecedeFeriado()
+        public void DeveExigirPeloMenosQuarentaDiasDeAntecedencia()
         {
-            bool valid = true;
+            var contexto = CriarContexto(
+                new DateTime(2026, 2, 10),
+                new DateTime(2026, 2, 19),
+                dataDaSolicitacao: new DateTime(2026, 1, 1));
 
-            //Arrange
-            Moq.Mock<IRegraDeNegocio> mock = new Mock<IRegraDeNegocio>();
-            mock.Setup(x => x.DataDeInicioAntecedeFeriado(It.IsAny<DateTime>(), true)).Returns(true);
-            RegraDeNegocio DDIAF = new RegraDeNegocio();
-
-            //Act
-            var op = DDIAF.DataDeInicioAntecedeFeriado(new DateTime(25 / 02 / 2023), valid);
-
-            //Assert
-            Assert.True(op);
+            Assert.True(new RegraAntecedenciaMinima().Validar(contexto));
         }
+
         [Fact]
-        public void QuarentaDiasDeAntecedencia()
+        public void DeveCalcularDuracaoInclusiva()
         {
-            bool valid = true;
+            var solicitacao = new SolicitacaoFerias(
+                new DateTime(2026, 2, 16),
+                new DateTime(2026, 2, 25));
 
-            //Arrange
-            Moq.Mock<IRegraDeNegocio> mock = new Mock<IRegraDeNegocio>();
-            mock.Setup(x => x.QuarentaDiasDeAntecedencia(It.IsAny<DateTime>(), It.IsAny<DateTime>(), true));
-            RegraDeNegocio QDA = new RegraDeNegocio();
-
-            //Act
-            var op = QDA.QuarentaDiasDeAntecedencia(new DateTime(01 / 02 / 2023), new DateTime(25 / 02 / 2023), valid);
-
-            //Assert
-            Assert.False(op);
+            Assert.Equal(10, solicitacao.DuracaoEmDias);
+            Assert.True(new RegraDuracaoMinima().Validar(CriarContexto(solicitacao)));
+            Assert.True(new RegraDuracaoMaxima().Validar(CriarContexto(solicitacao)));
         }
-        [Fact]
-        public void FeriasDentroDoLimiteDeDias()
+
+        private static ContextoDeValidacao CriarContexto(
+            DateTime dataInicial,
+            DateTime dataFinal,
+            Feriado feriado = null,
+            DateTime? dataDaSolicitacao = null)
         {
-            bool valid = true;
+            var feriados = feriado == null
+                ? new List<Feriado>()
+                : new List<Feriado> { feriado };
 
-
-            //Arrange            
-            Moq.Mock<IRegraDeNegocio> mock = new Mock<IRegraDeNegocio>();
-            mock.Setup(x => x.FeriasDentroDoLimiteDeDias(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), true)).Returns(true);
-            RegraDeNegocio FDLD = new RegraDeNegocio();
-
-            //Act
-            int limite = 30;
-            var op = FDLD.FeriasDentroDoLimiteDeDias(new DateTime(25 / 02 / 2023), new DateTime(25 / 02 / 2023), limite,  valid);
-
-            //Assert
-            Assert.True(op);
+            return CriarContexto(
+                new SolicitacaoFerias(dataInicial, dataFinal),
+                feriados,
+                dataDaSolicitacao ?? new DateTime(2026, 1, 1));
         }
-        [Fact]
-        public void FeriasDentroDoLimiteMinimoDeDias()
+
+        private static ContextoDeValidacao CriarContexto(SolicitacaoFerias solicitacao)
         {
-            bool valid = true;
+            return CriarContexto(solicitacao, new List<Feriado>(), new DateTime(2026, 1, 1));
+        }
 
-            //Arrange
-            Moq.Mock<IRegraDeNegocio> mock = new Mock<IRegraDeNegocio>();
-            mock.Setup(x => x.FeriasDentroDoLimiteMinimoDeDias(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), true)).Returns(true);
-            RegraDeNegocio FDLDD = new RegraDeNegocio();
-
-            //Act
-            int limite = 10;
-            var op = FDLDD.FeriasDentroDoLimiteMinimoDeDias(new DateTime(01 / 02 / 2023), new DateTime( 01/ 02 / 2023), limite, valid);
-
-            //Assert
-            Assert.True(op);
+        private static ContextoDeValidacao CriarContexto(
+            SolicitacaoFerias solicitacao,
+            IReadOnlyCollection<Feriado> feriados,
+            DateTime dataDaSolicitacao)
+        {
+            return new ContextoDeValidacao(solicitacao, dataDaSolicitacao, feriados);
         }
     }
 }
