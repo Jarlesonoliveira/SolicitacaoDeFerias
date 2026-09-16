@@ -1,4 +1,4 @@
-using SolicitacaoDeFerias.Model;
+using SolicitacaoDeFerias.Domain;
 using System;
 using System.Collections.Generic;
 

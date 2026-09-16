@@ -1,4 +1,4 @@
-using SolicitacaoDeFerias.Model;
+using SolicitacaoDeFerias.Domain;
 
 namespace SolicitacaoDeFerias.Services
 {

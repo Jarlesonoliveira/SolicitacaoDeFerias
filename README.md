@@ -13,11 +13,13 @@ Aplicação de console em C# para validar solicitações de férias.
 
 ## Arquitetura
 
-- O modelo de domínio contém `SolicitacaoFerias` e `Feriado`.
+- A camada `Domain` contém `SolicitacaoFerias`, `Feriado` e o value object `PeriodoFerias`.
+- `SolicitacaoFerias` funciona como agregado, protege a invariável de datas e expõe eventos de domínio.
+- `SolicitacaoCriadaEvent` registra a criação do agregado para futuras integrações.
 - Cada regra implementa `IRegraDeFerias`, seguindo o padrão Strategy.
 - `ValidacaoDeRegra` orquestra as estratégias e retorna um resultado, sem escrever no console.
 - `IFeriadoRepository` e `IRelogio` são portas do domínio, permitindo testes determinísticos.
-- `FeriadoCsvRepository` é um adaptador de infraestrutura.
+- `FeriadoCsvRepository` é um adaptador de infraestrutura e interpreta datas `dd/MM` com o ano da solicitação.
 - A injeção de dependência é configurada somente em `Program`.
 
 ## Tecnologias utilizadas
@@ -59,11 +61,14 @@ dotnet run --project SolicitacaoDeFerias/SolicitacaoDeFerias.csproj
 
 ## Cobertura de testes
 
-Cobertura medida no projeto `SolicitacaoDeFerias_Test`:
+Cobertura medida por projeto de teste:
 
-- Linhas: **33,08%** (44 de 133)
-- Branches: **11,53%** (3 de 26)
-- Testes executados: **1 aprovado**
+| Projeto | Linhas | Branches | Testes |
+|---|---:|---:|---:|
+| `SolicitacaoDeFerias_Test` | **61,53%** (104 de 169) | **44,11%** (15 de 34) | 4 aprovados |
+| `SolicitacaoDeFerias.Test` | **30,76%** (52 de 169) | **17,64%** (6 de 34) | 4 aprovados |
+
+A solução executa **8 testes aprovados** no total. O Coverlet gera um relatório separado para cada projeto de teste; por isso os percentuais são apresentados por suíte, e não como uma soma simples.
 
 Para gerar o relatório de cobertura novamente:
 
@@ -71,4 +76,4 @@ Para gerar o relatório de cobertura novamente:
 dotnet test SolicitacaoDeFerias_Test/SolicitacaoDeFerias_Test.csproj --collect:"XPlat Code Coverage"
 ```
 
-A cobertura atual é parcial. Os próximos testes devem exercitar principalmente os cenários inválidos das regras de negócio e os caminhos de erro.
+A cobertura atual é parcial. Os testes também cobrem a invariável do período, o evento de domínio e a interpretação anual do CSV. Ainda devem ser ampliados os cenários inválidos das regras de negócio e os caminhos de erro da interface de console.

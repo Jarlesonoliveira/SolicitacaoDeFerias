@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
+using SolicitacaoDeFerias.Domain;
 using SolicitacaoDeFerias.Infrastructure;
-using SolicitacaoDeFerias.Model;
 using SolicitacaoDeFerias.Services;
 using System;
 using System.Globalization;

@@ -1,3 +1,4 @@
+using SolicitacaoDeFerias.Domain;
 using System.Linq;
 
 namespace SolicitacaoDeFerias.Services

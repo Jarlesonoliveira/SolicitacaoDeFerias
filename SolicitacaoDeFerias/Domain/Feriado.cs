@@ -1,6 +1,6 @@
 using System;
 
-namespace SolicitacaoDeFerias.Model
+namespace SolicitacaoDeFerias.Domain
 {
     public sealed class Feriado
     {

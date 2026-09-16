@@ -1,4 +1,4 @@
-using SolicitacaoDeFerias.Model;
+using SolicitacaoDeFerias.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +25,10 @@ namespace SolicitacaoDeFerias.Services
                 throw new ArgumentNullException(nameof(solicitacao));
             }
 
-            var contexto = new ContextoDeValidacao(solicitacao, _relogio.Agora, _feriadoRepository.ObterTodos());
+            var contexto = new ContextoDeValidacao(
+                solicitacao,
+                _relogio.Agora,
+                _feriadoRepository.ObterTodos(solicitacao.DataInicial.Year));
             var erros = _regras.Where(regra => !regra.Validar(contexto)).Select(regra => regra.MensagemDeErro);
             return new ResultadoValidacao(erros);
         }

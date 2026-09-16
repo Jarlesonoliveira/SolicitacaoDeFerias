@@ -1,4 +1,4 @@
-using SolicitacaoDeFerias.Model;
+using SolicitacaoDeFerias.Domain;
 using SolicitacaoDeFerias.Services;
 using System;
 using System.Collections.Generic;
@@ -16,13 +16,13 @@ namespace SolicitacaoDeFerias.Infrastructure
             _caminho = caminho;
         }
 
-        public IReadOnlyCollection<Feriado> ObterTodos()
+        public IReadOnlyCollection<Feriado> ObterTodos(int ano)
         {
             var feriados = new List<Feriado>();
             foreach (var registro in File.ReadAllLines(_caminho))
             {
                 var dados = registro.Split(',');
-                if (dados.Length < 2 || !TentarLerData(dados[0], out var data))
+                if (dados.Length < 2 || !TentarLerData(dados[0], ano, out var data))
                 {
                     continue;
                 }
@@ -33,7 +33,7 @@ namespace SolicitacaoDeFerias.Infrastructure
             return feriados.AsReadOnly();
         }
 
-        private static bool TentarLerData(string valor, out DateTime data)
+        private static bool TentarLerData(string valor, int ano, out DateTime data)
         {
             if (DateTime.TryParseExact(valor, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out data))
             {
@@ -42,7 +42,7 @@ namespace SolicitacaoDeFerias.Infrastructure
 
             if (DateTime.TryParseExact(valor, "dd/MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dataSemAno))
             {
-                data = new DateTime(DateTime.Today.Year, dataSemAno.Month, dataSemAno.Day);
+                data = new DateTime(ano, dataSemAno.Month, dataSemAno.Day);
                 return true;
             }
 
